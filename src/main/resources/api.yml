@@ -1,0 +1,144 @@
+openapi: "3.0.0"
+info:
+  title: API de Gestión de Cuentas
+  description: API para gestionar la información de cuentas de los clientes en el banco XYZ.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8085
+    description: Servidor local para el microservicio ms_account
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bank
+    username: root
+    password: NjMySql0.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+paths:
+  /accounts:
+    post:
+      summary: Crear una cuenta para un cliente
+      requestBody:
+        description: Información necesaria para registrar una cuenta
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '201':
+          description: Cuenta creada exitosamente
+        '404':
+          description: Cliente no Creado
+
+    get:
+      summary: Listar todas las cuentas bancarias
+      responses:
+        '200':
+          description: Lista de cuentas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+
+  /accounts/{id}:
+    get:
+      summary: Obtener detalles de una cuenta por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalles de la cuenta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Cuenta no encontrada
+
+    delete:
+      summary: Eliminar una cuenta bancaria
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Cuenta eliminada
+
+  /accounts/{accountid}/deposit:
+    put:
+      summary: Realizar un depósito en una cuenta bancaria
+      parameters:
+        - in: path
+          name: accountid
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Depósito realizado
+        '404':
+          description: Cuenta no encontrada
+
+  /accounts/{accountId}/withdraw:
+    put:
+      summary: Realizar un retiro en una cuenta bancaria
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Retiro realizado
+        '404':
+          description: Cuenta no encontrada
+
+components:
+  schemas:
+    account:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_number:
+          type: string
+        balance:
+          type: double
+        account_type:
+          type: string
+          enum: [AHORROS, CORRIENTE]
+        customer_id:
+          type: integer
